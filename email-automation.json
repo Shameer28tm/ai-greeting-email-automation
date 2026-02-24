@@ -1,0 +1,401 @@
+{
+  "name": "email-automation",
+  "nodes": [
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1TiTHocAwLEpqGjv9wAJMYqpKzO-03uTKvJOEHl1rr3Q",
+          "mode": "list",
+          "cachedResultName": "greeting message",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1TiTHocAwLEpqGjv9wAJMYqpKzO-03uTKvJOEHl1rr3Q/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1TiTHocAwLEpqGjv9wAJMYqpKzO-03uTKvJOEHl1rr3Q/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        32,
+        -16
+      ],
+      "id": "3eb69706-e670-438c-975b-a220e9fa655c",
+      "name": "Get row(s) in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "6km2moFKhTz8N0yE",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        256,
+        -16
+      ],
+      "id": "98e346cb-139a-4d2f-bc82-b8e4ea409bab",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Name: {{ $json.Name }}\nLocation: {{ $json.Location }}",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "You are a professional email greeting writer. Generate a greeting in maximum 15 words. Use recipient name and location. Greeting must be positive and sentiment-aware. No extra text."
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        720,
+        -16
+      ],
+      "id": "3ab81e42-fe9e-4e45-a97c-6d09312c0be4",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        784,
+        160
+      ],
+      "id": "c6387470-4080-4eae-ba49-dda775de6cb0",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "j0l0lByQUdKJn1Jv",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": 20
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        496,
+        80
+      ],
+      "id": "80b6b13e-5c05-4f7a-8255-7dcc6e30d36b",
+      "name": "Wait",
+      "webhookId": "a88865dc-b1ac-4d5a-9765-9e90d508e972"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Loop Over Items').item.json.EmailID }}",
+        "subject": "Warm Greetings from Zclouddigitech",
+        "emailType": "text",
+        "message": "={{ $json.text }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1040,
+        -16
+      ],
+      "id": "d6332d59-93aa-4b1a-bdb6-5319c6c5edcb",
+      "name": "Send a message",
+      "webhookId": "17b56625-d249-495c-96d2-78dd0bd4563e",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "l6KHoEjN2bYQ4i2E",
+          "name": "Shameer Mail"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "f6a8f7bf-0c4d-4179-872c-ca2d69556537",
+              "leftValue": "={{ $json.id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "fab8123a-8cff-48e0-82ba-a8195f901ca6",
+              "leftValue": "",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1200,
+        -16
+      ],
+      "id": "2843f2b3-01a0-4f3f-bb41-e4531471a841",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1TiTHocAwLEpqGjv9wAJMYqpKzO-03uTKvJOEHl1rr3Q",
+          "mode": "list",
+          "cachedResultName": "greeting message",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1TiTHocAwLEpqGjv9wAJMYqpKzO-03uTKvJOEHl1rr3Q/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1TiTHocAwLEpqGjv9wAJMYqpKzO-03uTKvJOEHl1rr3Q/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "row_number": "={{ $('Get row(s) in sheet').item.json.row_number }}",
+            "status": "Sended"
+          },
+          "matchingColumns": [
+            "row_number"
+          ],
+          "schema": [
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Location",
+              "displayName": "Location",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "EmailID",
+              "displayName": "EmailID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1440,
+        -32
+      ],
+      "id": "92d70ddb-d96b-45cc-99f4-0ce15992467d",
+      "name": "sended",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "6km2moFKhTz8N0yE",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -160,
+        -16
+      ],
+      "id": "37c9298e-647b-4c6d-9f23-0ae22b3b7165",
+      "name": "When clicking ‘Execute workflow’"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "sended",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "sended",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "sended": {
+      "main": [
+        []
+      ]
+    },
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "2bebf1f5-d479-42d9-bbc4-9f305d09374e",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "582b3695ff7bfd085b301e96857526dfcff82dd240562d257abcd7ef20c4bf5e"
+  },
+  "id": "4VnpjEx77IKL5D7T",
+  "tags": []
+}
